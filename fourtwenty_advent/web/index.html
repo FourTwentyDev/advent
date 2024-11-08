@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FiveM Advent Calendar - Daily rewards for the holiday season">
+    <title>FiveM Advent Calendar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body style="display: none;">
+    <!-- Background overlay -->
+    <div class="christmas-bg" aria-hidden="true"></div>
+
+    <main class="container">
+        <!-- Close button -->
+        <button type="button" class="close-btn" data-locale="closeButton" aria-label="Close calendar">×</button>
+
+        <!-- Calendar header -->
+        <header class="header">
+            <h1 id="adventskalender-2024" class="title" data-locale="title">Advent Calendar 2024</h1>
+        </header>
+
+        <!-- Calendar grid -->
+        <section class="calendar" role="grid">
+            <div class="door" data-day="13">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">13</div>
+                        <div class="door-emoji">⭐</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="6">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">6</div>
+                        <div class="door-emoji">🎄</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="21">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">21</div>
+                        <div class="door-emoji">🍪</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="3">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">3</div>
+                        <div class="door-emoji">🔔</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="17">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">17</div>
+                        <div class="door-emoji">🕯️</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="9">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">9</div>
+                        <div class="door-emoji">🎁</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="24">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">24</div>
+                        <div class="door-emoji">🎄</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="1">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">1</div>
+                        <div class="door-emoji">🕯️</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="15">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">15</div>
+                        <div class="door-emoji">🎁</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="4">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">4</div>
+                        <div class="door-emoji">🎅</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="20">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">20</div>
+                        <div class="door-emoji">🎅</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="7">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">7</div>
+                        <div class="door-emoji">⭐</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="18">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">18</div>
+                        <div class="door-emoji">🎄</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="11">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">11</div>
+                        <div class="door-emoji">🔔</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="23">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">23</div>
+                        <div class="door-emoji">🎁</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="5">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">5</div>
+                        <div class="door-emoji">🦌</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="16">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">16</div>
+                        <div class="door-emoji">🦌</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="8">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">8</div>
+                        <div class="door-emoji">❄️</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="22">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">22</div>
+                        <div class="door-emoji">⭐</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="2">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">2</div>
+                        <div class="door-emoji">🎁</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="19">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">19</div>
+                        <div class="door-emoji">🔔</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="10">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">10</div>
+                        <div class="door-emoji">🎅</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="14">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">14</div>
+                        <div class="door-emoji">❄️</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="door" data-day="12">
+                <div class="door-frame">
+                    <div class="gift-content">
+                        <img src="" alt="Gift image" class="gift-image">
+                        <div class="sparkles">✨</div>
+                    </div>
+                </div>
+                <div class="door-panel">
+                    <div class="door-content">
+                        <div class="door-number">12</div>
+                        <div class="door-emoji">🍪</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Decorative elements -->
+        <div class="decorations" aria-hidden="true"></div>
+    </main>
+
+    <!-- Notification area -->
+    <div class="notification" role="alert" aria-live="polite"></div>
+    
+    <!-- Scripts -->
+    <script src="script.js"></script>
+</body>
+</html>
