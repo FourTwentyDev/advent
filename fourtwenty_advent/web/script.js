@@ -1,6 +1,6 @@
 // Configuration
 const CONFIG = {
-    testMode: true,
+    testMode: false,
     testDate: new Date('2024-12-24'),
     forcedOpenDoors: []
 };
