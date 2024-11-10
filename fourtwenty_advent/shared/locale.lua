@@ -57,8 +57,6 @@ Locale.CurrentLanguage = 'en'
 
 function Locale.Translate(key, ...)
 
-    
-    Locale.CurrentLanguage = 'en'
 
     local args = {...}
     local language = Locale.Languages[Locale.CurrentLanguage]
