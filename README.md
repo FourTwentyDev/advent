@@ -6,52 +6,73 @@ A feature-rich and highly customizable advent calendar system for FiveM servers.
 
 ### Interactive Gift Hunt System
 - **Dynamic Gift Placement** 📍
-  - Intelligent spawn system with ground detection
-  - Multiple spawn zones across the map
-  - Anti-glitch placement verification
-  - Safe location algorithms
-
-- **Engaging Search Mechanics** 🔍
+  - Multiple spawn locations per day (3 possible locations)
+  - Safe location verification
+  - Ground detection system
+  - Anti-exploitation measures
   ```lua
-  -- Example spawn zone configuration
-  {
-      center = vector3(228.8, -866.0, 30.5),
-      radius = 40.0,
-      minZ = 25.0,
-      maxZ = 45.0
+  -- Example spawn location configuration
+  [1] = {
+      vector3(228.8, -866.0, 30.5),    -- Location 1
+      vector3(230.5, -870.2, 30.5),    -- Location 2
+      vector3(225.3, -868.7, 30.5)     -- Location 3
   }
   ```
-  - Search area indicators
-  - Proximity-based interactions
-  - Visual and audio feedback
-  - Anti-exploitation measures
 
 ### Advanced Calendar System
 - **Daily Rewards System** 💝
-  - Configurable rewards per day
-  - Multiple reward types:
+  - Multiple reward types supported:
     - Items
-    - Money
+    - Cash
     - Bank transfers
-    - Multi-rewards
-  - Progress tracking
-  - Anti-abuse mechanisms
+    - Multi-rewards (Day 24 special)
+  ```lua
+  -- Example reward configuration
+  [24] = {
+      type = "multi",
+      rewards = {
+          {
+              type = "bank",
+              amount = 25000
+          },
+          {
+              type = "item",
+              item = "heist_necklace_2",
+              amount = 1
+          }
+      }
+  }
+  ```
 
 ### Modern NUI Interface
 - **Responsive Design** 💻
-  - Beautiful Christmas theme
-  - Animated door interactions
-  - Visual reward previews
+  - 24 animated calendar doors
+  - Custom door animations
+  - Festive emojis for each day
   - Particle effects
   - Sound effects
   - Mobile-friendly layout
 
 - **Interactive Elements** ✨
-  - Door animations
-  - Gift previews
-  - Progress tracking
-  - Visual notifications
-  - Seasonal decorations
+  - Animated door transitions
+  - Gift preview system
+  - Visual feedback
+  - Sparkle effects
+  - Custom sound effects
+
+### Multilingual Support 🌍
+- Built-in language system
+- Currently supports:
+  - English (en)
+  - German (de)
+- Easy to add new languages
+```lua
+Locale.Languages['en'] = {
+    ['command_description'] = 'Open the Advent Calendar',
+    ['gift_found'] = 'You found a gift!'
+    -- Add more translations
+}
+```
 
 ## Technical Details 🔧
 
@@ -67,7 +88,7 @@ CREATE TABLE IF NOT EXISTS fourtwenty_advent (
 ### Framework Support
 - Full ESX integration
 - QB-Core support
-- Easily adaptable to other frameworks
+- Framework bridge for easy adaptation
 
 ## Dependencies 📦
 - [es_extended](https://github.com/esx-framework/esx-legacy) or [qb-core](https://github.com/qbcore-framework/qb-core)
@@ -82,26 +103,17 @@ git clone https://github.com/FourTwentyDev/advent
 ```
 
 2. Import SQL schema
-```bash
-mysql -u your_username -p your_database < advent.sql
+```sql
+CREATE TABLE IF NOT EXISTS fourtwenty_advent (
+    year INT NOT NULL,
+    opened_doors LONGTEXT,
+    PRIMARY KEY (year)
+);
 ```
 
 3. Add to server.cfg
 ```lua
 ensure fourtwenty_advent
-```
-
-4. Configure rewards in config.lua
-```lua
--- Example reward configuration
-Config.Rewards = {
-    [1] = {
-        type = "item",
-        item = "food_sandwich",
-        amount = 3,
-        notification = "received 3x Holiday Sandwich!"
-    }
-}
 ```
 
 ## Configuration Options ⚙️
@@ -111,7 +123,10 @@ Config.Rewards = {
 Config.GiftProps = {
     models = {
         'prop_box_tea01a',
-        'prop_cs_box_clothes'
+        'prop_cs_box_clothes',
+        'prop_cs_box_step',
+        'prop_box_ammo04a',
+        'prop_paper_bag_01'
     },
     searchRadius = 100.0,
     timeToSearch = 5000,
@@ -119,17 +134,27 @@ Config.GiftProps = {
 }
 ```
 
-### Spawn Zones
-- Customizable spawn locations
-- Safe zone definitions
-- Height restrictions
-- Area limitations
+### Sound Effects
+```lua
+Config.Sounds = {
+    doorOpen = {
+        name = "NAV_UP_DOWN",
+        dict = "HUD_FRONTEND_DEFAULT_SOUNDSET"
+    },
+    giftFound = {
+        name = "CHALLENGE_UNLOCKED",
+        dict = "HUD_AWARDS"
+    }
+}
+```
 
-### Rewards
-- Multiple reward types
-- Customizable amounts
-- Custom notifications
-- Special multi-rewards
+### Discord Logging
+```lua
+Config.Logging = {
+    enabled = true,
+    webhook = "your-webhook-url"
+}
+```
 
 ## Performance 🚀
 - Resource usage: 0.0ms idle
@@ -139,7 +164,6 @@ Config.GiftProps = {
   - Smart distance checks
   - Event batching
   - Resource state management
-
 
 ## Support & Links 💭
 1. Join our [Discord](https://discord.gg/fourtwenty)
