@@ -18,7 +18,10 @@ Locale.Languages = {
         ['reward_black_money'] = 'Du hast %s$ Schwarzgeld gefunden!',
         ['reward_bank'] = '%s$ wurden deinem Bankkonto gutgeschrieben!',
         ['reward_item'] = 'Du hast %sx %s gefunden!',
-        ['reward_weapon'] = 'Du hast eine %s mit %s Schuss gefunden!'
+        ['reward_weapon'] = 'Du hast eine %s mit %s Schuss gefunden!',
+        ['inventory_full'] = 'Dein Inventar ist voll! Mache Platz und versuche es erneut.',
+        ['too_far_from_gift'] = 'Du bist zu weit vom Geschenk entfernt!',
+        ['error_processing_reward'] = 'Fehler beim Verarbeiten der Belohnung. Bitte versuche es erneut!'
     },
     ['en'] = {
         ['command_description'] = 'Open the Advent Calendar',
@@ -37,7 +40,10 @@ Locale.Languages = {
         ['reward_black_money'] = 'You found $%s in black money!',
         ['reward_bank'] = '$%s has been added to your bank account!',
         ['reward_item'] = 'You found %sx %s!',
-        ['reward_weapon'] = 'You found a %s with %s ammunition!'
+        ['reward_weapon'] = 'You found a %s with %s ammunition!',
+        ['inventory_full'] = 'Your inventory is full! Make some space and try again.',
+        ['too_far_from_gift'] = 'You are too far from the gift!',
+        ['error_processing_reward'] = 'Error processing reward. Please try again!'
     }
 }
 

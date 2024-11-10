@@ -3,6 +3,7 @@ local currentGift = nil
 local searchingGift = false
 local giftProp = nil
 local currentBlip = nil
+local giftPosition = nil
 
 -- Initialize framework and set up commands
 CreateThread(function()
@@ -34,14 +35,12 @@ end
 
 -- Get the ground Z coordinate using multiple methods for accuracy
 local function GetGroundZ(x, y, startZ, endZ)
-    local startPosition = vector3(x, y, startZ + 0.5)
-    local endPosition = vector3(x, y, endZ - 0.5)
-    
-    -- Try native ground check first
-    local ground, groundZ = GetGroundZFor_3dCoord(x, y, startZ, false)
+    -- First try native ground check
+    local ground, groundZ = GetGroundZFor_3dCoord(x, y, startZ, true)
     if ground then
+        -- Verify the ground Z with a raycast
         local rayHandle = StartShapeTestRay(
-            x, y, groundZ + 1.0,
+            x, y, groundZ + 2.0,
             x, y, groundZ - 0.5,
             1,
             0,
@@ -50,34 +49,39 @@ local function GetGroundZ(x, y, startZ, endZ)
         local retval, hit, endCoords = GetShapeTestResult(rayHandle)
         
         if hit == 1 then
-            return true, endCoords.z
+            -- Additional verification raycast slightly above found position
+            local verifyHandle = StartShapeTestRay(
+                x, y, endCoords.z + 0.5,
+                x, y, endCoords.z - 0.1,
+                1,
+                0,
+                0
+            )
+            local _, verifyHit, verifyCoords = GetShapeTestResult(verifyHandle)
+            
+            if verifyHit == 1 then
+                return true, verifyCoords.z + 0.1 -- Add small offset to prevent clipping
+            end
         end
     end
     
-    -- Fallback to raycast method
-    local rayHandle = StartShapeTestRay(
-        startPosition.x, startPosition.y, startPosition.z,
-        endPosition.x, endPosition.y, endPosition.z,
-        1,
-        0,
-        0
-    )
+    -- Fallback to extensive raycast method
+    local steps = 10
+    local stepSize = (startZ - endZ) / steps
     
-    local retval, hit, endCoords = GetShapeTestResult(rayHandle)
-    
-    if hit == 1 then
-        local finalZ = endCoords.z
-        local verifyHandle = StartShapeTestRay(
-            x, y, finalZ + 0.1,
-            x, y, finalZ - 0.1,
+    for i = 0, steps do
+        local testZ = startZ - (stepSize * i)
+        local rayHandle = StartShapeTestRay(
+            x, y, testZ + 2.0,
+            x, y, testZ - 0.5,
             1,
             0,
             0
         )
-        local _, verifyHit = GetShapeTestResult(verifyHandle)
+        local retval, hit, endCoords = GetShapeTestResult(rayHandle)
         
-        if verifyHit == 1 then
-            return true, finalZ
+        if hit == 1 then
+            return true, endCoords.z + 0.1 -- Add small offset to prevent clipping
         end
     end
     
@@ -105,7 +109,7 @@ function GetRandomPositionInZone(zone)
         if found and groundZ then
             if groundZ >= zone.minZ - 1.0 and groundZ <= zone.maxZ + 1.0 then
                 local verifyHandle = StartShapeTestCapsule(
-                    x, y, groundZ + 0.1,
+                    x, y, groundZ + 1.0,
                     x, y, groundZ - 0.1,
                     0.5,
                     1,
@@ -127,11 +131,8 @@ function GetRandomPositionInZone(zone)
                     score = score + math.random() * 10
                     
                     if score > bestScore then
-                        local finalGround, finalZ = GetGroundZFor_3dCoord(x, y, groundZ, true)
-                        if finalGround then
-                            bestScore = score
-                            bestPosition = vector3(x, y, finalZ)
-                        end
+                        bestScore = score
+                        bestPosition = currentPos
                     end
                 end
             end
@@ -143,19 +144,15 @@ function GetRandomPositionInZone(zone)
     end
     
     if bestPosition then
-        local ground, finalZ = GetGroundZFor_3dCoord(bestPosition.x, bestPosition.y, bestPosition.z, true)
-        if ground then
-            bestPosition = vector3(bestPosition.x, bestPosition.y, finalZ)
-        end
         return bestPosition
     else
         local ground, centerZ = GetGroundZFor_3dCoord(zone.center.x, zone.center.y, 
             (zone.maxZ + zone.minZ) / 2, true)
         
         if ground then
-            return vector3(zone.center.x, zone.center.y, centerZ)
+            return vector3(zone.center.x, zone.center.y, centerZ + 0.1)
         else
-            return vector3(zone.center.x, zone.center.y, zone.minZ)
+            return vector3(zone.center.x, zone.center.y, zone.minZ + 0.1)
         end
     end
 end
@@ -242,6 +239,7 @@ RegisterNUICallback('openDoor', function(data, cb)
     })
     
     currentGift = day
+    giftPosition = giftPos
 end)
 
 -- Spawn gift prop at specified position
@@ -267,31 +265,37 @@ function SpawnGiftProp(day, position)
         end
     end
     
-    local ground, finalZ = GetGroundZFor_3dCoord(position.x, position.y, position.z, true)
-    local finalPosition = ground and vector3(position.x, position.y, finalZ) or position
+    -- Create the prop slightly above ground to ensure proper placement
+    local spawnPos = vector3(position.x, position.y, position.z + 0.5)
+    giftProp = CreateObject(modelHash, spawnPos.x, spawnPos.y, spawnPos.z, false, false, true)
     
-    giftProp = CreateObject(modelHash, finalPosition.x, finalPosition.y, finalPosition.z, false, false, true)
     if not DoesEntityExist(giftProp) then
         SetModelAsNoLongerNeeded(modelHash)
         return false
     end
     
+    -- Place on ground properly with additional checks
     PlaceObjectOnGroundProperly_2(giftProp)
-    SetEntityCollision(giftProp, true, true)
-    FreezeEntityPosition(giftProp, true)
-
-    local propPos = GetEntityCoords(giftProp)
-    local adjustHandle = StartShapeTestRay(
-        propPos.x, propPos.y, propPos.z + 0.1,
-        propPos.x, propPos.y, propPos.z - 0.1,
-        1, 0, giftProp
+    Wait(100) -- Give time for physics to settle
+    
+    -- Get the final position after placement
+    local finalPos = GetEntityCoords(giftProp)
+    
+    -- Verify ground placement with raycast
+    local rayHandle = StartShapeTestRay(
+        finalPos.x, finalPos.y, finalPos.z + 1.0,
+        finalPos.x, finalPos.y, finalPos.z - 1.0,
+        1, giftProp, 7
     )
-    local _, hit = GetShapeTestResult(adjustHandle)
+    local _, hit, hitCoords = GetShapeTestResult(rayHandle)
     
     if hit == 1 then
-        SetEntityCoords(giftProp, propPos.x, propPos.y, propPos.z + 0.05, false, false, false, false)
+        -- Adjust position slightly above ground
+        SetEntityCoords(giftProp, finalPos.x, finalPos.y, hitCoords.z + 0.1, false, false, false, false)
     end
     
+    SetEntityCollision(giftProp, true, true)
+    FreezeEntityPosition(giftProp, true)
     SetModelAsNoLongerNeeded(modelHash)
     
     -- Create search area blip
@@ -319,6 +323,7 @@ function SpawnGiftProp(day, position)
     end
     
     currentGift = day
+    giftPosition = position
     return true
 end
 
@@ -373,7 +378,7 @@ end)
 
 -- Handle gift opening process
 function OpenGift()
-    if not currentGift then return end
+    if not currentGift or not giftProp or not giftPosition then return end
     
     TaskStartScenarioInPlace(PlayerPedId(), "PROP_HUMAN_BUM_BIN", 0, true)
     
@@ -415,7 +420,7 @@ end
 -- Complete gift opening process
 function GiftOpenComplete(cancelled)
     if not cancelled then
-        TriggerServerEvent('fourtwenty_advent:giftFound', currentGift)
+        TriggerServerEvent('fourtwenty_advent:giftFound', currentGift, giftPosition)
         PlaySoundFrontend(-1, Config.Sounds.giftFound.name, Config.Sounds.giftFound.dict, false)
         
         if DoesEntityExist(giftProp) then
@@ -425,6 +430,7 @@ function GiftOpenComplete(cancelled)
         
         currentGift = nil
         giftProp = nil
+        giftPosition = nil
     end
     
     ClearPedTasks(PlayerPedId())
@@ -449,23 +455,5 @@ AddEventHandler('fourtwenty_advent:receivedReward', function(notification)
             message = notification,
             notificationType = "success"
         })
-    end
-end)
-
--- Framework initialization
-CreateThread(function()
-    if Framework.CurrentFramework == 'QB' then
-        Framework.Core.Commands.Add(Config.UI.command, _U('command_description'), {}, false, function(source)
-            TriggerEvent(Config.UI.command)
-        end)
-    end
-    
-    if Framework.CurrentFramework == 'ESX' then
-        CreateThread(function()
-            while Framework.Core == nil do
-                Wait(100)
-            end
-            Locale.CurrentLanguage = Framework.Core.GetConfig().Locale
-        end)
     end
 end)
