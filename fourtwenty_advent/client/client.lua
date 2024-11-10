@@ -22,139 +22,10 @@ CreateThread(function()
     end
 end)
 
--- Helper function to get a random spawn zone from config
-local function GetRandomSpawnZone()
-    return Config.SpawnZones[math.random(#Config.SpawnZones)]
-end
-
--- Check if a position is clear of obstacles
-local function IsPositionClear(x, y, z, radius)
-    local flags = 2 + 4 + 8 + 16
-    return not IsPositionOccupied(x, y, z, radius, false, true, false, false, flags)
-end
-
--- Get the ground Z coordinate using multiple methods for accuracy
-local function GetGroundZ(x, y, startZ, endZ)
-    -- First try native ground check
-    local ground, groundZ = GetGroundZFor_3dCoord(x, y, startZ, true)
-    if ground then
-        -- Verify the ground Z with a raycast
-        local rayHandle = StartShapeTestRay(
-            x, y, groundZ + 2.0,
-            x, y, groundZ - 0.5,
-            1,
-            0,
-            0
-        )
-        local retval, hit, endCoords = GetShapeTestResult(rayHandle)
-        
-        if hit == 1 then
-            -- Additional verification raycast slightly above found position
-            local verifyHandle = StartShapeTestRay(
-                x, y, endCoords.z + 0.5,
-                x, y, endCoords.z - 0.1,
-                1,
-                0,
-                0
-            )
-            local _, verifyHit, verifyCoords = GetShapeTestResult(verifyHandle)
-            
-            if verifyHit == 1 then
-                return true, verifyCoords.z + 0.1 -- Add small offset to prevent clipping
-            end
-        end
-    end
-    
-    -- Fallback to extensive raycast method
-    local steps = 10
-    local stepSize = (startZ - endZ) / steps
-    
-    for i = 0, steps do
-        local testZ = startZ - (stepSize * i)
-        local rayHandle = StartShapeTestRay(
-            x, y, testZ + 2.0,
-            x, y, testZ - 0.5,
-            1,
-            0,
-            0
-        )
-        local retval, hit, endCoords = GetShapeTestResult(rayHandle)
-        
-        if hit == 1 then
-            return true, endCoords.z + 0.1 -- Add small offset to prevent clipping
-        end
-    end
-    
-    return false, nil
-end
-
--- Get a random valid position within a specified zone
-function GetRandomPositionInZone(zone)
-    local maxAttempts = 100
-    local minDistance = 1.0
-    local bestPosition = nil
-    local bestScore = -1
-    local playerPos = GetEntityCoords(PlayerPedId())
-    
-    for i = 1, maxAttempts do
-        local sqrt_random = math.sqrt(math.random())
-        local angle = math.random() * 2 * math.pi
-        local radius = sqrt_random * zone.radius
-        
-        local x = zone.center.x + math.cos(angle) * radius
-        local y = zone.center.y + math.sin(angle) * radius
-        
-        local found, groundZ = GetGroundZ(x, y, zone.maxZ + 50.0, zone.minZ - 5.0)
-        
-        if found and groundZ then
-            if groundZ >= zone.minZ - 1.0 and groundZ <= zone.maxZ + 1.0 then
-                local verifyHandle = StartShapeTestCapsule(
-                    x, y, groundZ + 1.0,
-                    x, y, groundZ - 0.1,
-                    0.5,
-                    1,
-                    0,
-                    7
-                )
-                local _, hit = GetShapeTestResult(verifyHandle)
-                
-                if hit == 1 and IsPositionClear(x, y, groundZ, minDistance) then
-                    local currentPos = vector3(x, y, groundZ)
-                    local score = 0
-                    
-                    local distanceFromPlayer = #(currentPos - playerPos)
-                    score = score + (distanceFromPlayer / zone.radius) * 50
-                    
-                    local distanceFromCenter = #(currentPos - vector3(zone.center.x, zone.center.y, groundZ))
-                    score = score + (distanceFromCenter / zone.radius) * 30
-                    
-                    score = score + math.random() * 10
-                    
-                    if score > bestScore then
-                        bestScore = score
-                        bestPosition = currentPos
-                    end
-                end
-            end
-        end
-        
-        if bestScore > 70 then
-            break
-        end
-    end
-    
-    if bestPosition then
-        return bestPosition
-    else
-        local ground, centerZ = GetGroundZFor_3dCoord(zone.center.x, zone.center.y, 
-            (zone.maxZ + zone.minZ) / 2, true)
-        
-        if ground then
-            return vector3(zone.center.x, zone.center.y, centerZ + 0.1)
-        else
-            return vector3(zone.center.x, zone.center.y, zone.minZ + 0.1)
-        end
-    end
+-- Get a random location for the specified day
+local function GetRandomLocation(day)
+    if not Config.GiftLocations[day] then return nil end
+    return Config.GiftLocations[day][math.random(#Config.GiftLocations[day])]
 end
 
 -- UI Command Handler
@@ -206,16 +77,7 @@ RegisterNUICallback('openDoor', function(data, cb)
     local day = data.day
     cb('ok')
     
-    local zone = GetRandomSpawnZone()
-    if not zone then
-        SendNUIMessage({
-            type = "doorError",
-            message = "Failed to find spawn zone"
-        })
-        return
-    end
-    
-    local giftPos = GetRandomPositionInZone(zone)
+    local giftPos = GetRandomLocation(day)
     if not giftPos then
         SendNUIMessage({
             type = "doorError",
@@ -231,6 +93,17 @@ RegisterNUICallback('openDoor', function(data, cb)
             message = "Failed to spawn gift"
         })
         return
+    end
+    
+    -- Show notification that gift has been hidden
+    if Framework.CurrentFramework == 'QB' then
+        Framework.Core.Functions.Notify(_U('gift_search_started'), "success")
+    else
+        SendNUIMessage({
+            type = "showNotification",
+            message = _U('gift_search_started'),
+            notificationType = "success"
+        })
     end
     
     SendNUIMessage({
@@ -265,33 +138,12 @@ function SpawnGiftProp(day, position)
         end
     end
     
-    -- Create the prop slightly above ground to ensure proper placement
-    local spawnPos = vector3(position.x, position.y, position.z + 0.5)
-    giftProp = CreateObject(modelHash, spawnPos.x, spawnPos.y, spawnPos.z, false, false, true)
+    -- Create the prop slightly above ground
+    giftProp = CreateObject(modelHash, position.x, position.y, position.z + 0.1, false, false, true)
     
     if not DoesEntityExist(giftProp) then
         SetModelAsNoLongerNeeded(modelHash)
         return false
-    end
-    
-    -- Place on ground properly with additional checks
-    PlaceObjectOnGroundProperly_2(giftProp)
-    Wait(100) -- Give time for physics to settle
-    
-    -- Get the final position after placement
-    local finalPos = GetEntityCoords(giftProp)
-    
-    -- Verify ground placement with raycast
-    local rayHandle = StartShapeTestRay(
-        finalPos.x, finalPos.y, finalPos.z + 1.0,
-        finalPos.x, finalPos.y, finalPos.z - 1.0,
-        1, giftProp, 7
-    )
-    local _, hit, hitCoords = GetShapeTestResult(rayHandle)
-    
-    if hit == 1 then
-        -- Adjust position slightly above ground
-        SetEntityCoords(giftProp, finalPos.x, finalPos.y, hitCoords.z + 0.1, false, false, false, false)
     end
     
     SetEntityCollision(giftProp, true, true)
@@ -304,6 +156,9 @@ function SpawnGiftProp(day, position)
         SetBlipSprite(searchAreaBlip, Config.GiftProps.blipSprite)
         SetBlipColour(searchAreaBlip, 1)
         SetBlipAlpha(searchAreaBlip, 128)
+        BeginTextCommandSetBlipName("STRING")
+        AddTextComponentString(_U('gift_search_area'))
+        EndTextCommandSetBlipName(searchAreaBlip)
     end
     
     -- Create gift blip with offset
@@ -318,7 +173,7 @@ function SpawnGiftProp(day, position)
         SetBlipAsShortRange(giftBlip, false)
         SetBlipRoute(giftBlip, true)
         BeginTextCommandSetBlipName("STRING")
-        AddTextComponentString(_U('gift_search_area'))
+        AddTextComponentString(_U('gift_blip_name'))
         EndTextCommandSetBlipName(giftBlip)
     end
     

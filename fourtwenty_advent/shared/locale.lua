@@ -21,7 +21,10 @@ Locale.Languages = {
         ['reward_weapon'] = 'Du hast eine %s mit %s Schuss gefunden!',
         ['inventory_full'] = 'Dein Inventar ist voll! Mache Platz und versuche es erneut.',
         ['too_far_from_gift'] = 'Du bist zu weit vom Geschenk entfernt!',
-        ['error_processing_reward'] = 'Fehler beim Verarbeiten der Belohnung. Bitte versuche es erneut!'
+        ['error_processing_reward'] = 'Fehler beim Verarbeiten der Belohnung. Bitte versuche es erneut!',
+        ['gift_search_started'] = 'Ein Geschenk wurde in der Nähe versteckt! Ein Wegpunkt wurde auf deiner Karte platziert.',
+        ['gift_blip_name'] = 'Dein Geschenk',
+        ['gift_search_area'] = 'Suchbereich'
     },
     ['en'] = {
         ['command_description'] = 'Open the Advent Calendar',
@@ -43,13 +46,20 @@ Locale.Languages = {
         ['reward_weapon'] = 'You found a %s with %s ammunition!',
         ['inventory_full'] = 'Your inventory is full! Make some space and try again.',
         ['too_far_from_gift'] = 'You are too far from the gift!',
-        ['error_processing_reward'] = 'Error processing reward. Please try again!'
+        ['error_processing_reward'] = 'Error processing reward. Please try again!',
+        ['gift_search_started'] = 'A gift has been hidden nearby! A waypoint has been placed on your map.',
+        ['gift_blip_name'] = 'Your Gift',
+        ['gift_search_area'] = 'Search Area'
     }
 }
 
 Locale.CurrentLanguage = 'en'
 
 function Locale.Translate(key, ...)
+
+    
+    Locale.CurrentLanguage = 'en'
+
     local args = {...}
     local language = Locale.Languages[Locale.CurrentLanguage]
     

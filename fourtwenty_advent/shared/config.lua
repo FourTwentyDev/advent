@@ -29,77 +29,151 @@ Config.GiftProps = {
     giftBlipSprite = 568      -- Gift location blip sprite
 }
 
--- Spawn Zones Configuration
-Config.SpawnZones = {
-    -- Vinewood Boulevard (Shopping District)
-    {
-        center = vector3(228.8, -866.0, 30.5),
-        radius = 40.0,
-        minZ = 25.0,
-        maxZ = 45.0
+-- Gift Spawn Locations Per Door
+Config.GiftLocations = {
+    -- Day 1
+    [1] = {
+        vector3(228.8, -866.0, 30.5),    -- Location 1
+        vector3(230.5, -870.2, 30.5),    -- Location 2
+        vector3(225.3, -868.7, 30.5)     -- Location 3
     },
-    -- Legion Square (Central Plaza)
-    {
-        center = vector3(195.17, -934.8, 30.69),
-        radius = 50.0,
-        minZ = 25.0,
-        maxZ = 45.0
+    -- Day 2
+    [2] = {
+        vector3(195.17, -934.8, 30.69),  -- Location 1
+        vector3(198.45, -932.1, 30.69),  -- Location 2
+        vector3(192.83, -937.2, 30.69)   -- Location 3
     },
-    -- Mirror Park (Residential Area with Park)
-    {
-        center = vector3(1122.11, -644.44, 56.82),
-        radius = 45.0,
-        minZ = 51.0,
-        maxZ = 71.0
+    -- Day 3
+    [3] = {
+        vector3(1122.11, -644.44, 56.82), -- Location 1
+        vector3(1125.33, -642.18, 56.82), -- Location 2
+        vector3(1119.76, -646.91, 56.82)  -- Location 3
     },
-    -- Vespucci Beach Promenade
-    {
-        center = vector3(-1234.23, -1476.37, 4.37),
-        radius = 55.0,
-        minZ = 1.0,
-        maxZ = 15.0
+    -- Day 4
+    [4] = {
+        vector3(-137.73, -246.53, 43.73), -- Location 1
+        vector3(-134.92, -244.21, 43.73), -- Location 2
+        vector3(-140.15, -248.84, 43.73)  -- Location 3
     },
-    -- Rockford Plaza (Shopping Center Area)
-    {
-        center = vector3(-137.73, -246.53, 43.73),
-        radius = 45.0,
-        minZ = 38.0,
-        maxZ = 58.0
+    -- Day 5
+    [5] = {
+        vector3(-766.55, 465.97, 100.18), -- Location 1
+        vector3(-763.82, 468.34, 100.18), -- Location 2
+        vector3(-769.23, 463.55, 100.18)  -- Location 3
     },
-    -- Vinewood Hills (Luxury Viewpoints)
-    {
-        center = vector3(-766.55, 465.97, 100.18),
-        radius = 60.0,
-        minZ = 95.0,
-        maxZ = 115.0
+    -- Day 6
+    [6] = {
+        vector3(808.72, -896.01, 25.25),  -- Location 1
+        vector3(811.45, -893.67, 25.25),  -- Location 2
+        vector3(806.14, -898.43, 25.25)   -- Location 3
     },
-    -- Del Perro Pier (Amusement Area)
-    {
-        center = vector3(-1843.59, -1201.67, 13.02),
-        radius = 50.0,
-        minZ = 8.0,
-        maxZ = 28.0
+    -- Day 7
+    [7] = {
+        vector3(-916.04, -451.03, 39.61), -- Location 1
+        vector3(-913.27, -448.76, 39.61), -- Location 2
+        vector3(-918.82, -453.45, 39.61)  -- Location 3
     },
-    -- Galileo Park (Quiet Park Area)
-    {
-        center = vector3(-1002.95, 354.62, 70.77),
-        radius = 45.0,
-        minZ = 65.0,
-        maxZ = 85.0
+    -- Day 8
+    [8] = {
+        vector3(-1234.23, -1476.37, 4.37), -- Location 1
+        vector3(-1231.56, -1473.92, 4.37), -- Location 2
+        vector3(-1236.89, -1478.83, 4.37)  -- Location 3
     },
-    -- La Mesa (Industrial District)
-    {
-        center = vector3(808.72, -896.01, 25.25),
-        radius = 40.0,
-        minZ = 20.0,
-        maxZ = 40.0
+    -- Day 9
+    [9] = {
+        vector3(-1843.59, -1201.67, 13.02), -- Location 1
+        vector3(-1840.87, -1199.23, 13.02), -- Location 2
+        vector3(-1846.32, -1204.12, 13.02)  -- Location 3
     },
-    -- Weazel Plaza (Office District)
-    {
-        center = vector3(-916.04, -451.03, 39.61),
-        radius = 45.0,
-        minZ = 34.0,
-        maxZ = 54.0
+    -- Day 10
+    [10] = {
+        vector3(-1002.95, 354.62, 70.77),   -- Location 1
+        vector3(-1000.23, 357.05, 70.77),   -- Location 2
+        vector3(-1005.68, 352.18, 70.77)    -- Location 3
+    },
+    -- Day 11
+    [11] = {
+        vector3(235.12, -875.43, 30.5),     -- Location 1
+        vector3(237.85, -872.98, 30.5),     -- Location 2
+        vector3(232.40, -877.89, 30.5)      -- Location 3
+    },
+    -- Day 12
+    [12] = {
+        vector3(190.34, -940.21, 30.69),    -- Location 1
+        vector3(193.07, -937.76, 30.69),    -- Location 2
+        vector3(187.62, -942.67, 30.69)     -- Location 3
+    },
+    -- Day 13
+    [13] = {
+        vector3(1117.28, -649.87, 56.82),   -- Location 1
+        vector3(1120.01, -647.42, 56.82),   -- Location 2
+        vector3(1114.56, -652.33, 56.82)    -- Location 3
+    },
+    -- Day 14
+    [14] = {
+        vector3(-142.56, -251.86, 43.73),   -- Location 1
+        vector3(-139.83, -249.41, 43.73),   -- Location 2
+        vector3(-145.28, -254.32, 43.73)    -- Location 3
+    },
+    -- Day 15
+    [15] = {
+        vector3(-771.38, 461.64, 100.18),   -- Location 1
+        vector3(-768.65, 464.09, 100.18),   -- Location 2
+        vector3(-774.10, 459.18, 100.18)    -- Location 3
+    },
+    -- Day 16
+    [16] = {
+        vector3(803.89, -900.84, 25.25),    -- Location 1
+        vector3(806.62, -898.39, 25.25),    -- Location 2
+        vector3(801.17, -903.30, 25.25)     -- Location 3
+    },
+    -- Day 17
+    [17] = {
+        vector3(-920.87, -455.86, 39.61),   -- Location 1
+        vector3(-918.14, -453.41, 39.61),   -- Location 2
+        vector3(-923.59, -458.32, 39.61)    -- Location 3
+    },
+    -- Day 18
+    [18] = {
+        vector3(-1239.06, -1481.20, 4.37),  -- Location 1
+        vector3(-1236.33, -1478.75, 4.37),  -- Location 2
+        vector3(-1241.78, -1483.66, 4.37)   -- Location 3
+    },
+    -- Day 19
+    [19] = {
+        vector3(-1848.42, -1206.50, 13.02), -- Location 1
+        vector3(-1845.69, -1204.05, 13.02), -- Location 2
+        vector3(-1851.14, -1208.96, 13.02)  -- Location 3
+    },
+    -- Day 20
+    [20] = {
+        vector3(-1007.78, 349.79, 70.77),   -- Location 1
+        vector3(-1005.05, 352.24, 70.77),   -- Location 2
+        vector3(-1010.50, 347.33, 70.77)    -- Location 3
+    },
+    -- Day 21
+    [21] = {
+        vector3(240.95, -870.60, 30.5),     -- Location 1
+        vector3(243.68, -868.15, 30.5),     -- Location 2
+        vector3(238.23, -873.06, 30.5)      -- Location 3
+    },
+    -- Day 22
+    [22] = {
+        vector3(185.51, -945.04, 30.69),    -- Location 1
+        vector3(188.24, -942.59, 30.69),    -- Location 2
+        vector3(182.79, -947.50, 30.69)     -- Location 3
+    },
+    -- Day 23
+    [23] = {
+        vector3(1112.45, -654.70, 56.82),   -- Location 1
+        vector3(1115.18, -652.25, 56.82),   -- Location 2
+        vector3(1109.73, -657.16, 56.82)    -- Location 3
+    },
+    -- Day 24
+    [24] = {
+        vector3(-147.39, -256.69, 43.73),   -- Location 1
+        vector3(-144.66, -254.24, 43.73),   -- Location 2
+        vector3(-150.11, -259.15, 43.73)    -- Location 3
     }
 }
 
