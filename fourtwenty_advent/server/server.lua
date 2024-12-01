@@ -1,24 +1,15 @@
 local Framework = _G.Framework
 local openedDoors = {}
 
--- Check if a value exists in a table
-local function tableContains(table, value)
-    for _, v in ipairs(table) do
-        if v == value then
-            return true
-        end
-    end
-    return false
-end
-
 -- Initialize database and framework
 CreateThread(function()
     MySQL.ready(function()
         MySQL.Async.execute([[
             CREATE TABLE IF NOT EXISTS fourtwenty_advent (
+                identifier VARCHAR(50) NOT NULL,
                 year INT NOT NULL,
-                opened_doors LONGTEXT,
-                PRIMARY KEY (year)
+                opened_doors JSON,
+                PRIMARY KEY (identifier, year)
             );
         ]])
     end)
@@ -33,27 +24,44 @@ MySQL.ready(function()
     MySQL.Async.fetchAll('SELECT * FROM fourtwenty_advent WHERE year = @year', {
         ['@year'] = os.date('%Y')
     }, function(results)
-        if results[1] then
-            openedDoors = json.decode(results[1].opened_doors) or {}
+        if results then
+            for _, row in ipairs(results) do
+                openedDoors[row.identifier] = json.decode(row.opened_doors) or {}
+            end
             GlobalState.openedDoors = openedDoors
         end
     end)
 end)
 
--- Periodic data saving
+-- Save data for a specific player
+function SavePlayerData(identifier)
+    if not identifier or not openedDoors[identifier] then return end
+    
+    MySQL.Async.execute('INSERT INTO fourtwenty_advent (identifier, year, opened_doors) VALUES (@identifier, @year, @doors) ON DUPLICATE KEY UPDATE opened_doors = @doors', {
+        ['@identifier'] = identifier,
+        ['@year'] = os.date('%Y'),
+        ['@doors'] = json.encode(openedDoors[identifier])
+    })
+end
+
+-- Periodic data saving for all players
 CreateThread(function()
     while true do
-        Wait(5 * 60 * 1000) -- Save every 5 minutes
-        SaveData()
+        Wait(60 * 1000) -- Save every 10 seconds for testing
+        for identifier, _ in pairs(openedDoors) do
+            SavePlayerData(identifier)
+        end
     end
 end)
 
--- Save advent calendar data to database
-function SaveData()
-    MySQL.Async.execute('INSERT INTO fourtwenty_advent (year, opened_doors) VALUES (@year, @doors) ON DUPLICATE KEY UPDATE opened_doors = @doors', {
-        ['@year'] = os.date('%Y'),
-        ['@doors'] = json.encode(openedDoors)
-    })
+-- Check if a value exists in a table
+local function tableContains(table, value)
+    for _, v in ipairs(table) do
+        if v == value then
+            return true
+        end
+    end
+    return false
 end
 
 -- Check player distance from gift
@@ -144,6 +152,7 @@ AddEventHandler('fourtwenty_advent:giftFound', function(day, giftCoords)
             -- Record door opening after successful reward distribution
             table.insert(openedDoors[identifier], day)
             GlobalState.openedDoors = openedDoors
+            SavePlayerData(identifier) -- Save immediately for this player
             TriggerClientEvent('fourtwenty_advent:receivedReward', source, reward.notification)
         else
             -- Single reward
@@ -157,12 +166,10 @@ AddEventHandler('fourtwenty_advent:giftFound', function(day, giftCoords)
                 -- Record door opening after successful reward distribution
                 table.insert(openedDoors[identifier], day)
                 GlobalState.openedDoors = openedDoors
+                SavePlayerData(identifier) -- Save immediately for this player
                 TriggerClientEvent('fourtwenty_advent:receivedReward', source, reward.notification)
             end
         end
-        
-        -- Save progress
-        SaveData()
         
         -- Log if enabled
         if Config.Logging.enabled then
@@ -191,27 +198,11 @@ function ProcessSingleReward(xPlayer, reward)
     end)
     
     if not status then
-        print("Error processing reward: " .. tostring(err))
         Framework.Notify(xPlayer.source, _U('error_processing_reward'), 'error')
         return false
     end
     
     return true
-end
-
--- Generate notification message for reward
-function GenerateRewardNotification(reward)
-    if reward.type == "money" then
-        return _U('reward_money', reward.amount)
-    elseif reward.type == "black_money" then
-        return _U('reward_black_money', reward.amount)
-    elseif reward.type == "bank" then
-        return _U('reward_bank', reward.amount)
-    elseif reward.type == "item" then
-        return _U('reward_item', reward.amount, reward.item)
-    elseif reward.type == "weapon" then
-        return _U('reward_weapon', reward.weapon, reward.ammo or 0)
-    end
 end
 
 -- Admin command to reset calendar
@@ -221,19 +212,22 @@ RegisterCommand('adventreset', function(source, args, rawCommand)
     if Framework.IsAdmin(xPlayer) then
         if args[1] == 'all' then
             -- Reset all players
+            MySQL.Async.execute('DELETE FROM fourtwenty_advent WHERE year = @year', {
+                ['@year'] = os.date('%Y')
+            })
             openedDoors = {}
             GlobalState.openedDoors = openedDoors
-            SaveData()
             Framework.Notify(source, _U('calendar_reset'), 'success')
         else
             -- Reset specific player
             local targetIdentifier = args[1]
-            if openedDoors[targetIdentifier] then
-                openedDoors[targetIdentifier] = nil
-                GlobalState.openedDoors = openedDoors
-                SaveData()
-                Framework.Notify(source, _U('calendar_reset_player'), 'success')
-            end
+            MySQL.Async.execute('DELETE FROM fourtwenty_advent WHERE identifier = @identifier AND year = @year', {
+                ['@identifier'] = targetIdentifier,
+                ['@year'] = os.date('%Y')
+            })
+            openedDoors[targetIdentifier] = nil
+            GlobalState.openedDoors = openedDoors
+            Framework.Notify(source, _U('calendar_reset_player'), 'success')
         end
     end
 end, false)
