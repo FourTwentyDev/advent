@@ -79,9 +79,10 @@ Locale.Languages['en'] = {
 ### Database Structure
 ```sql
 CREATE TABLE IF NOT EXISTS fourtwenty_advent (
-    year INT NOT NULL,
-    opened_doors LONGTEXT,
-    PRIMARY KEY (year)
+  identifier VARCHAR(50) NOT NULL,
+  year INT NOT NULL,
+  opened_doors JSON,
+  PRIMARY KEY (identifier, year)
 );
 ```
 
