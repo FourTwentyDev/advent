@@ -47,7 +47,7 @@ end
 -- Periodic data saving for all players
 CreateThread(function()
     while true do
-        Wait(60 * 1000) -- Save every 10 seconds for testing
+        Wait(60 * 1000) -- Save every minute
         for identifier, _ in pairs(openedDoors) do
             SavePlayerData(identifier)
         end
@@ -96,6 +96,22 @@ function HasInventorySpace(xPlayer, reward)
     end
     return true
 end
+
+-- Get player's opened doors
+RegisterNetEvent('fourtwenty_advent:getPlayerDoors')
+AddEventHandler('fourtwenty_advent:getPlayerDoors', function()
+    local source = source
+    local xPlayer = Framework.GetPlayer(source)
+    
+    if not xPlayer then return end
+    
+    local identifier = Framework.GetIdentifier(xPlayer)
+    if not openedDoors[identifier] then
+        openedDoors[identifier] = {}
+    end
+    
+    TriggerClientEvent('fourtwenty_advent:receivePlayerDoors', source, openedDoors[identifier])
+end)
 
 -- Handle gift found event from client
 RegisterNetEvent('fourtwenty_advent:giftFound')

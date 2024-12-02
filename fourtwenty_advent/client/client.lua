@@ -49,10 +49,36 @@ RegisterCommand(Config.UI.command, function()
         doorImages[tostring(day)] = imageUrl
     end
 
+    -- Request opened doors from server
+    TriggerServerEvent('fourtwenty_advent:getPlayerDoors')
+end)
+
+-- Event handler for receiving player doors from server
+RegisterNetEvent('fourtwenty_advent:receivePlayerDoors')
+AddEventHandler('fourtwenty_advent:receivePlayerDoors', function(playerOpenedDoors)
+    local doorImages = {}
+    
+    for day, reward in pairs(Config.Rewards) do
+        local imageUrl
+        if reward.type == "multi" then
+            if reward.rewards[1].type == "item" then
+                imageUrl = string.format(Config.UI.InventoryLink, reward.rewards[1].item)
+            elseif reward.rewards[1].type == "money" or reward.rewards[1].type == "bank" then
+                imageUrl = string.format(Config.UI.InventoryLink, "money")
+            end
+        elseif reward.type == "item" then
+            imageUrl = string.format(Config.UI.InventoryLink, reward.item)
+        elseif reward.type == "money" or reward.type == "bank" then
+            imageUrl = string.format(Config.UI.InventoryLink, "money")
+        end
+        
+        doorImages[tostring(day)] = imageUrl
+    end
+
     SetNuiFocus(true, true)
     SendNUIMessage({
         type = "showUI",
-        openedDoors = GlobalState.openedDoors or {},
+        openedDoors = playerOpenedDoors,
         doorImages = doorImages,
         locale = {
             title = _U('calendar_title'),
