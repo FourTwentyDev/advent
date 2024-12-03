@@ -5,6 +5,14 @@ local giftProp = nil
 local currentBlip = nil
 local giftPosition = nil
 
+-- Debug print function
+local function DebugPrint(message, data)
+    --print('^3[Advent Calendar Debug]^7 ' .. message)
+    --if data then
+    --    print('^3[Debug Data]^7 ' .. json.encode(data, {indent = true}))
+    --end
+end
+
 -- Initialize framework and set up commands
 CreateThread(function()
     while Framework.CurrentFramework == nil do
@@ -30,6 +38,7 @@ end
 
 -- UI Command Handler
 RegisterCommand(Config.UI.command, function()
+    DebugPrint('UI Command triggered, requesting player doors from server')
     local doorImages = {}
     
     for day, reward in pairs(Config.Rewards) do
@@ -56,6 +65,7 @@ end)
 -- Event handler for receiving player doors from server
 RegisterNetEvent('fourtwenty_advent:receivePlayerDoors')
 AddEventHandler('fourtwenty_advent:receivePlayerDoors', function(playerOpenedDoors)
+    DebugPrint('Received player doors from server', playerOpenedDoors)
     local doorImages = {}
     
     for day, reward in pairs(Config.Rewards) do
@@ -75,6 +85,11 @@ AddEventHandler('fourtwenty_advent:receivePlayerDoors', function(playerOpenedDoo
         doorImages[tostring(day)] = imageUrl
     end
 
+    DebugPrint('Sending UI data', {
+        openedDoors = playerOpenedDoors,
+        doorImagesCount = #doorImages
+    })
+
     SetNuiFocus(true, true)
     SendNUIMessage({
         type = "showUI",
@@ -92,6 +107,7 @@ end)
 
 -- NUI Callbacks
 RegisterNUICallback('closeUI', function(data, cb)
+    DebugPrint('UI Close requested')
     SetNuiFocus(false, false)
     SendNUIMessage({
         type = "hideUI"
@@ -101,10 +117,12 @@ end)
 
 RegisterNUICallback('openDoor', function(data, cb)
     local day = data.day
+    DebugPrint('Door open requested', {day = day})
     cb('ok')
     
     local giftPos = GetRandomLocation(day)
     if not giftPos then
+        DebugPrint('Failed to find valid spawn position for day', {day = day})
         SendNUIMessage({
             type = "doorError",
             message = "Failed to find valid spawn position"
@@ -114,6 +132,7 @@ RegisterNUICallback('openDoor', function(data, cb)
     
     local success = SpawnGiftProp(day, giftPos)
     if not success then
+        DebugPrint('Failed to spawn gift for day', {day = day})
         SendNUIMessage({
             type = "doorError",
             message = "Failed to spawn gift"
@@ -139,6 +158,7 @@ RegisterNUICallback('openDoor', function(data, cb)
     
     currentGift = day
     giftPosition = giftPos
+    DebugPrint('Gift spawned successfully', {day = day, position = giftPos})
 end)
 
 -- Spawn gift prop at specified position

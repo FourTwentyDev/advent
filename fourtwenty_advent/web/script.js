@@ -5,6 +5,15 @@ const CONFIG = {
     forcedOpenDoors: []
 };
 
+// Debug logging
+function debugLog(message, data = null) {
+    return;
+    console.log(`[Advent Calendar Debug] ${message}`);
+    if (data) {
+        console.log('[Debug Data]', data);
+    }
+}
+
 // Audio setup
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 const audioContext = new AudioContext();
@@ -17,16 +26,20 @@ let doorImages = {};
 
 // Normalize opened doors data structure
 function normalizeOpenedDoors(doors) {
-    if (!doors) return [];
+    debugLog('Normalizing doors data', doors);
+    
+    if (!doors) {
+        debugLog('No doors data provided, returning empty array');
+        return [];
+    }
     
     if (Array.isArray(doors)) {
-        return doors.flat().map(Number);
+        const normalized = doors.map(Number);
+        debugLog('Normalized doors array', normalized);
+        return normalized;
     }
     
-    if (typeof doors === 'object') {
-        return Object.values(doors).flat().map(Number);
-    }
-    
+    debugLog('Invalid doors data format, returning empty array');
     return [];
 }
 
@@ -78,6 +91,7 @@ function playDoorOpenSound() {
 
 // UI handling functions
 function showNotification(message, type = 'error') {
+    debugLog('Showing notification', { message, type });
     const notification = document.querySelector('.notification');
     notification.textContent = message;
     notification.style.display = 'block';
@@ -90,6 +104,7 @@ function showNotification(message, type = 'error') {
 
 function updateDoorContent(door) {
     const day = door.dataset.day;
+    debugLog('Updating door content', { day });
     const content = door.querySelector('.door-content');
     
     if (doorImages[day]) {
@@ -114,11 +129,14 @@ function isDoorAvailable(day) {
         CONFIG.testDate.getDate() : 
         (new Date().getMonth() === 11 ? new Date().getDate() : 0);
     
-    return day <= currentDay || CONFIG.forcedOpenDoors.includes(day);
+    const available = day <= currentDay || CONFIG.forcedOpenDoors.includes(day);
+    debugLog('Checking door availability', { day, currentDay, available });
+    return available;
 }
 
 function handleDoorClick(door) {
     const day = parseInt(door.dataset.day);
+    debugLog('Door clicked', { day });
     
     if (!isDoorAvailable(day)) {
         showNotification(locale.doorLocked || 'This door cannot be opened yet!', 'error');
@@ -126,9 +144,11 @@ function handleDoorClick(door) {
     }
     
     if (openedDoors.includes(day)) {
+        debugLog('Door already opened', { day });
         return;
     }
     
+    debugLog('Opening door', { day });
     playDoorOpenSound();
     door.classList.add('opening');
     createDoorParticles(door);
@@ -137,6 +157,7 @@ function handleDoorClick(door) {
         door.classList.add('opened');
         updateDoorContent(door);
         openedDoors.push(day);
+        debugLog('Door opened successfully', { day, openedDoors });
         
         fetch(`https://${GetParentResourceName()}/openDoor`, {
             method: 'POST',
@@ -180,6 +201,7 @@ function createDoorParticles(door) {
 
 // Initialize UI and event listeners
 document.addEventListener('DOMContentLoaded', () => {
+    debugLog('DOM Content Loaded');
     const title = document.querySelector('#adventskalender-2024');
     const closeBtn = document.querySelector('.close-btn');
     
@@ -198,6 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Close button handler
     closeBtn.addEventListener('click', () => {
+        debugLog('Close button clicked');
         fetch(`https://${GetParentResourceName()}/closeUI`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -218,6 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     // Initialize previously opened doors
+    debugLog('Initializing previously opened doors', { openedDoors });
     openedDoors.forEach(day => {
         const door = document.querySelector(`[data-day="${day}"]`);
         if (door) {
@@ -230,6 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Message handler for NUI events
 window.addEventListener('message', (event) => {
     const data = event.data;
+    debugLog('Received NUI message', { type: data.type });
     
     switch (data.type) {
         case 'showUI':
@@ -238,19 +263,31 @@ window.addEventListener('message', (event) => {
             doorImages = data.doorImages || {};
             locale = data.locale || {};
             
+            debugLog('UI shown with data', {
+                openedDoors,
+                doorImagesCount: Object.keys(doorImages).length,
+                locale: Object.keys(locale)
+            });
+            
             updateUIElements();
             initializeDoors();
             break;
             
         case 'hideUI':
             document.body.style.display = 'none';
+            debugLog('UI hidden');
             break;
             
         case 'doorOpened':
+            debugLog('Door opened event received', { day: data.day });
             handleDoorOpened(data.day);
             break;
             
         case 'showNotification':
+            debugLog('Show notification event received', {
+                message: data.message,
+                type: data.notificationType
+            });
             showNotification(data.message, data.notificationType);
             break;
     }
@@ -258,6 +295,7 @@ window.addEventListener('message', (event) => {
 
 // Helper functions for message handler
 function updateUIElements() {
+    debugLog('Updating UI elements');
     const title = document.querySelector('#adventskalender-2024');
     const closeBtn = document.querySelector('.close-btn');
     
@@ -270,6 +308,7 @@ function updateUIElements() {
 }
 
 function initializeDoors() {
+    debugLog('Initializing doors');
     document.querySelectorAll('.door').forEach(door => {
         const day = door.dataset.day;
         const giftImage = door.querySelector('.gift-image');
@@ -290,6 +329,7 @@ function initializeDoors() {
         }
     });
     
+    debugLog('Setting up opened doors', { openedDoors });
     openedDoors.forEach(day => {
         const door = document.querySelector(`[data-day="${day}"]`);
         if (door) {
@@ -300,6 +340,7 @@ function initializeDoors() {
 }
 
 function handleDoorOpened(day) {
+    debugLog('Handling door opened', { day });
     const door = document.querySelector(`[data-day="${day}"]`);
     if (door) {
         door.classList.add('opening', 'opened');
@@ -340,6 +381,7 @@ if (CONFIG.testMode) {
 // Escape key handler
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+        debugLog('Escape key pressed, closing UI');
         fetch(`https://${GetParentResourceName()}/closeUI`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
